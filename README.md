@@ -12,6 +12,10 @@ Principles About Linux
 
 # Operating System
 
+[Operating System Details](./OperatingSystem.md)
+
+# Operating System
+
 ## Terminology
 
 |   terminology    | desc  |
@@ -278,8 +282,69 @@ On Linux, each thread has its own user stack and a kernel exception stack.
 
 ### Stacks
 
+A stack is a memory storage area for temporary data, organized as a last-in, first-out (LIFO) list.
 
+It is used to store less important data than that which fits in the CPU register set. When a function is called, the
+return address is saved to the stack. Some registers may be saved to the stack as well if their values are needed after
+the call. When the called function has finished, it restores any required registers and, by fetching the return address
+from the stack, passes execution to the calling function. The stack can also be used for passing parameters to
+functions. The set of data on a stack related to a function’s execution is called a **stack frame**.
 
+**Stack Trace**
 
+The call path to the currently executing function can be seen by examining the saved return addresses across all the
+stack frames in the thread’s stack (a process called **stack walking**).
+
+This call path is referred to as a **stack back trace** or a **stack trace**. In performance engineering it is often
+called just a “stack” for short. These stacks can answer why something is executing, and are an invaluable tool for
+debugging and performance analysis.
+
+**How to Read a Stack**
+
+Stacks are usually printed in leaf-to-root order, so the first line printed is the function currently executing, and
+beneath it is its parent, then its grandparent, and so on.
+
+By reading down the stack, the full ancestry can be seen: function, parent, grandparent, and so on. Or, by reading
+bottom-up, you can follow the path of execution to the current function: how we got here.
+
+Since stacks expose the internal path taken through source code, there is typically no documentation for these functions
+other than the code itself.
+
+**User and Kernel Stacks**
+
+While executing a system call, a process thread has two stacks: a user-level stack and a kernel-level stack.
+
+![user_kernel_stacks.png](imgs/user_kernel_stacks.png)
+
+The user-level stack of the blocked thread does not change for the duration of a system call, as the thread is using a
+separate kernel-level stack while executing in kernel context.
+
+On Linux, there are multiple kernel stacks for different purposes. Syscalls use a kernel exception stack associated with
+each thread, and there are also stacks associated with soft and hard interrupts 。
+
+### Virtual Memory
+
+Virtual memory is an abstraction of main memory, providing processes and the kernel with their own, almost infinite,
+private view of main memory.
+
+![virtual_memory_address_spaces.png](imgs/virtual_memory_address_spaces.png)
+
+Virtual memory supports multitasking, allowing processes and the kernel to operate on their own private address spaces
+without worrying about contention. It also supports oversubscription of main memory, allowing the operating system to
+transparently map virtual memory between main memory and secondary storage (disks) as needed.
+
+**Memory Management**
+
+While virtual memory allows main memory to be extended using secondary storage.
+
+In Linux, the term swapping is used to refer to paging. The Linux kernel does not support the(older) Unix-style process
+swapping of entire threads and processes.
+
+### Schedulers
+
+The scheduling of processes on processors and individual CPUs is performed by the **scheduler**, a key component of the
+operating system kernel. The scheduler operates on threads (in Linux, tasks), mapping them to CPUs.
+
+![kernel_scheduler.png](imgs/kernel_scheduler.png)
 
 
