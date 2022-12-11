@@ -215,6 +215,69 @@ When there is no work for the CPUs to perform, the kernel schedules a placeholde
 idle thread. A simple implementation would check for the availability of new work in a loop. In modern Linux the idle
 task can call the hlt (halt) instruction to power down the CPU until the next interrupt is received, saving power.
 
+### Processes
+
+A **process** is an environment for executing a user-level program. It consists of a memory address space, file
+descriptors, thread stacks, and registers.
+
+**MultiTasks**
+
+Processes are **multitasked** by the kernel, which typically supports the execution of thousands of processes on a
+single system. They are individually identified by their process ID (PID), which is a unique numeric identifier.
+
+A process contains one or more threads, which operate in the process address space and share the same file descriptors.
+A **thread** is an executable context consisting of a stack, registers, and an instruction pointer (also called a
+program counter). Multiple threads allow a single process to execute in **parallel** across multiple CPUs. On Linux,
+threads and processes are both **task**s.
+
+**init process**
+
+The first process launched by the kernel is called “init,” from /sbin/init (by default), with PID 1, which launches user
+space services. Linux distributions now commonly use the systemd software to start services and track their
+dependencies.
+
+**Process Creation**
+
+Processes are normally created using the fork(2) system call on Unix systems. On Linux, C libraries typically implement
+the fork function by wrapping around the versatile clone(2) syscall. These syscalls create a duplicate of the process,
+with its own process ID. The exec(2) system call(or a variant, such as execve(2)) can then be called to begin execution
+of a different program.
+
+![process_creation.png](imgs/process_creation.png)
+
+The fork(2) or clone(2) syscall may use a **copy-on-write** (COW) strategy to improve performance. This adds references
+to the previous address space rather than copying all of the contents. Once either process modifies the
+multiple-referenced memory, a separate copy is then made for the modifications. This strategy either defers or
+eliminates the need to copy memory, reducing memory and CPU usage.
+
+**Process Life Cycle**
+
+For modern multithreaded operating systems, it is the threads that are scheduled and run, and there are some additional
+implementation details regarding how these map to process states
+
+![process_life_cycle.png](imgs/process_life_cycle.png)
+
+The on-proc state is for running on a processor (CPU). The ready-to-run state is when the process is runnable but is
+waiting on a CPU run queue for its turn on a CPU. Most I/O will block, putting the process in the sleep state until the
+I/O completes and the process is woken up. The zombie state occurs during process termination, when the process waits
+until its process status has been reaped by the parent process or until it is removed by the kernel.
+
+**Process Environment**
+
+The process environment consists of data in the address space of the process and metadata (context) in the kernel.
+
+![process_environment.png](imgs/process_environment.png)
+
+The kernel context consists of various process properties and statistics: its process ID (PID), the owner’s user ID (
+UID), and various times. These are commonly examined via the ps(1) and top(1) commands. It also has a set of file
+descriptors, which refer to open files and which are (usually) shared between threads.
+
+The user address space contains memory segments of the process: executable, libraries, and heap.
+
+On Linux, each thread has its own user stack and a kernel exception stack.
+
+### Stacks
+
 
 
 
