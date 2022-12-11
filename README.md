@@ -6,10 +6,6 @@ Principles About Linux
 
 [Linux Source Online](https://elixir.bootlin.com/linux/v3.10/source)
 
-# Network
-
-[SNMP](https://www.kernel.org/doc/html/v5.0/networking/snmp_counter.html)
-
 # Operating System
 
 [Operating System Details](./OperatingSystem.md)
@@ -346,5 +342,197 @@ The scheduling of processes on processors and individual CPUs is performed by th
 operating system kernel. The scheduler operates on threads (in Linux, tasks), mapping them to CPUs.
 
 ![kernel_scheduler.png](imgs/kernel_scheduler.png)
+
+The basic intent is to divide CPU time among the active processes and threads, and to maintain a notion of **priority**
+so that more important work can execute sooner. The scheduler keeps track of all threads in the ready-to-run state,
+traditionally on per-priority queues called **run queues**. Modern kernels may implement these queues per CPU and may
+also use other data structures, apart from queues, to track the threads. When more threads want to run than there are
+available CPUs, the lower-priority threads wait their turn. Most kernel threads run with a higher priority than
+user-level processes.
+
+Process priority can be modified dynamically by the scheduler to improve the performance of certain workloads. Workloads
+can be categorized as either:
+
+- **CPU-bound**: Applications that perform heavy compute, for example, scientific and mathematical analysis, which are
+  expected to have long runtimes (seconds, minutes, hours, days, or even longer). These become limited by CPU resources.
+- **I/O-bound**: Applications that perform I/O, with little compute, for example, web servers, file servers, and
+  interactive shells, where low-latency responses are desirable. When their load increases, they are limited by I/O to
+  storage or network resources.
+
+A commonly used scheduling policy dating back to UNIX identifies CPU-bound workloads and decreases their priority,
+allowing I/O-bound workloads—where low-latency responses are more desirable—to run sooner. This can be achieved by
+calculating the ratio of recent compute time(time executing on-CPU) to real time (elapsed time) and decreasing the
+priority of processes with a high (compute)ratio. This mechanism gives preference to shorter-running processes, which
+are usually those performing I/O, including human interactive processes.
+
+Modern kernels support multiple **scheduling classes** or **scheduling policies** (Linux) that apply different
+algorithms for managing priority and runnable threads. These may include real-time scheduling, which uses a priority
+higher than all noncritical work, including kernel threads. Along with preemption support, real-time scheduling provides
+predictable and low-latency scheduling for systems that require it.
+
+### File Systems
+
+File systems are an organization of data as files and directories. They have a file-based interface for accessing them,
+usually based on the POSIX standard. Kernels support multiple file system types and instances.
+
+The operating system provides a global file namespace, organized as a top-down tree topology starting with the root
+level (“/”). File systems join the tree by **mounting**, attaching their own tree to a directory (**the mount point**).
+This allows the end user to navigate the file namespace transparently, regardless of the underlying file system type.
+
+![operating_system_file_hierarchy.png](imgs/operating_system_file_hierarchy.png)
+
+The top-level directories include:
+
+- etc for system configuration files,
+- usr for system-supplied user-level programs and libraries,
+- dev for device nodes,
+- var for varying files including system logs,
+- tmp for temporary files,
+- home for user home directories.
+
+In the example pictured, var and home may reside on their own file system instances and separate storage devices;
+however, they can be accessed like any other component of the tree.
+
+Most file system types use storage devices (disks) to store their contents. Some file system types are dynamically
+created by the kernel, such as **/proc** and **/dev**.
+
+Kernels typically provide different ways to isolate processes to a portion of the file namespace, including **chroot(
+8)**, and, on Linux, **mount namespaces**, commonly used for containers.
+
+**VFS**
+
+![virtual_file_system.png](imgs/virtual_file_system.png)
+
+The virtual file system (VFS) is a kernel interface to abstract file system types, so that the Unix file system (UFS)
+and the Network file system (NFS) could more easily coexist.
+
+**I/O Stack**
+
+![generic_I_O_stack.png](imgs/generic_I_O_stack.png)
+
+For storage-device-based file systems, the path from user-level software to the storage device is called the **I/O
+stack**. This is a subset of the entire software stack shown earlier.
+
+### Caches
+
+Since disk I/O has historically had high latency, many layers of the software stack attempt to avoid it by caching reads
+and buffering writes.
+
+The types of caches present will vary based on the system and environment. Example cache layers for disk I/O:
+
+| Cache  | Examples |
+| ------ | -------- |
+| Client cache | Web browser cache |
+| Application cache | --- |
+| Web server cache | Apache cache |
+| Caching server | memcached |
+| Database cache | MySQL buffer cache |
+| Directory cache | dcache |
+| File metadata cache | inode cache |
+| Operating system buffer cache |  Buffer cache |
+| File system primary cache | Page cache, ZFS ARC |
+| File system secondary cache |  ZFS L2ARC |
+| Device cache | ZFS vdev |
+| Block cache | Buffer cache |
+| Disk controller cache | RAID card cache |
+| Storage array cache | --- |
+| On-disk cache | --- |
+
+For example, the buffer cache is an area of main memory that stores recently used disk blocks. Disk reads may be served
+immediately from the cache if the requested block is present, avoiding the high latency of disk I/O.
+
+### Networks
+
+[SNMP](https://www.kernel.org/doc/html/v5.0/networking/snmp_counter.html)
+
+Modern kernels provide a stack of built-in network protocols, allowing the system to communicate via the network and
+take part in distributed system environments. This is referred to as the **networking stack** or the **TCP/IP stack**,
+after the commonly used TCP and IP protocols. User-level applications access the network through programmable endpoints
+called **sockets**.
+
+The physical device that connects to the network is the **network interface** and is usually provided on a **network
+interface card** (NIC). A historical duty of the system administrator was to associate an **IP address** with a network
+interface, so that it can communicate with the network; these mappings are now typically automated via the dynamic host
+configuration protocol (**DHCP**).
+
+Network protocols do not change often. Protocol enhancements and options change more often, such as newer TCP options
+and TCP congestion control algorithms. Newer protocols and enhancements typically require kernel support (with the
+exception of user-space protocol implementations). Another change is support for different network interface cards,
+which require new device drivers for the kernel.
+
+### Device
+
+A kernel must communicate with a wide variety of physical devices. Such communication is achieved using device drivers:
+kernel software for device management and I/O. Device drivers are often provided by the vendors who develop the hardware
+devices. Some kernels support **pluggable device drivers**, which can be loaded and unloaded without requiring a system
+restart.
+
+Device drivers can provide character and/or block interfaces to their devices. **Character devices**, also called **raw
+devices**, provide unbuffered sequential access of any I/O size down to a single character, depending on the device.
+Such devices include keyboards and serial ports (and in original Unix, paper tape and line printer devices).
+
+**Block devices** perform I/O in units of blocks, which have historically been 512 bytes each. These can be accessed
+randomly based on their block offset, which begins at 0 at the start of the block device. In original Unix, the block
+device interface also provided caching of block device buffers to improve performance, in an area of main memory called
+the buffer cache. In Linux, this buffer cache is now part of the page cache.
+
+### Multiprocessor
+
+Multiprocessor support allows the operating system to use multiple CPU instances to execute work in parallel. It is
+usually implemented as symmetric multiprocessing (**SMP**) where all CPUs are treated equally.
+
+This was technically difficult to accomplish, posing problems for accessing and sharing memory and CPUs among threads
+running in parallel.
+
+On multiprocessor systems there may also be banks of main memory connected to different sockets (physical processors) in
+a non-uniform memory access (NUMA) architecture, which also pose performance challenges.
+
+**IPI**
+
+For a multiprocessor system, there are times when CPUs need to coordinate, such as for cache coherency of memory
+translation entries (informing other CPUs that an entry, if cached, is now stale). A CPU can request other CPUs, or all
+CPUs, to immediately perform such work using an **inter-processor interrupt** (IPI) (also known as an SMP call or a CPU
+cross call). IPIs are processor interrupts designed to be executed quickly, to minimize interruption of other threads.
+
+IPIs can also be used by preemption.
+
+### Preemption
+
+Kernel preemption support allows high-priority user-level threads to interrupt the kernel and execute.
+
+Approach supported by Linux is **voluntary kernel preemption**, where logical stopping points in the kernel code can
+check and perform preemption. This avoids some of the complexity of supporting a fully preemptive kernel and provides
+low-latency preemption for common workloads. Voluntary kernel preemption is commonly enabled in Linux via the
+CONFIG_PREEMPT_VOLUNTARY Kconfig option; there is also CONFIG_PREEMPT to allow all kernel code (except critical
+sections) to be preemptible, and CONFIG_PREEMPT_NONE to disable preemption, improving throughput at the cost of higher
+latencies.
+
+### Resource Management
+
+The operating system may provide various configurable controls for fine-tuning access to system resources, such as CPUs,
+memory, disk, and the network.
+
+These are resource controls and can be used to manage performance on systems that run different applications or host
+multiple tenants(cloud computing). Such controls may impose fixed limits per process (or groups of processes) for
+resource usage, or a more flexible approach—allowing spare usage to be shared among them.
+
+Early versions of Unix and BSD had basic per-process resource controls, including CPU priorities with nice(1), and some
+resource limits with ulimit(1).
+
+For Linux, control groups (cgroups) have been developed and integrated in Linux 2.6.24 (2008), and various additional
+controls have been added since then. These are documented in the kernel source under Documentation/cgroups. There is
+also an improved unified hierarchical scheme called cgroup v2, made available in Linux 4.5 (2016) and documented in
+Documentation/adminguide/cgroup-v2.rst.
+
+
+
+
+
+
+
+
+
+
+
 
 
