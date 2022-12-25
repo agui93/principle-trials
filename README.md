@@ -10,6 +10,21 @@ Principles About Linux
 
 # Operating System
 
+## Questions
+
+- Questions
+    - What is the difference between a process, a thread, and a task?
+    - What is a mode switch and a context switch?
+    - What is the difference between paging and process swapping?
+    - What is the difference between I/O-bound and CPU-bound workloads?
+    - Describe the role of the kernel.
+    - Describe the role of system calls.
+    - Describe the role of VFS and its location in the I/O stack.
+    - List the reasons why a thread would leave the current CPU.
+    - Describe the advantages of virtual memory and demand paging.
+
+## Terminologies And Concepts
+
 **[Terminologies And Concepts About Linux](os_linux.md)**
 
 - [术语](./os_linux.md#terminology)
@@ -31,3 +46,6 @@ Principles About Linux
     - [内核](./os_linux.md#preemption)
     - [资源管理](./os_linux.md#resource-management)
 - [关于linux内核性能方面的发展历程](./os_linux.md#linux-kernel-developments)
+
+
+

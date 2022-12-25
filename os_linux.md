@@ -24,9 +24,6 @@ Terminologies And Concepts About Linux
     - [资源管理](./os_linux.md#resource-management)
 - [关于linux内核性能方面的发展历程](./os_linux.md#linux-kernel-developments)
 
-
-
-
 # Operating System
 
 ## Terminology
