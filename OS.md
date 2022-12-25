@@ -6,6 +6,7 @@ Principles About Linux
 
 [Linux Source Online](https://elixir.bootlin.com/linux/v3.10/source)
 
+
 # Operating System
 
 ## Terminology
@@ -601,12 +602,6 @@ Linux kernel developments, especially those related to performance, include the 
 | Boot-time tracing (5.6) | Allows Ftrace to trace the early boot process. (systemd can provide timing information on the late boot process) |
 |  Thermal pressure (5.7)  |  The scheduler accounts for thermal throttling to make better placement decisions. | 
 |  perf flame graphs (5.8)  |  perf(1) support for the flame graph visualization.  | 
-
-# OS
-
-[Operating System](OS.md)
-
-[test linux source link](#Linux Source)
 
 
 
