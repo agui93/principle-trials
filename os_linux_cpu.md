@@ -64,7 +64,7 @@ Terminologies And Concepts About Linux CPU
 
 ### Models: CPU Architecture
 
-![cpu-model-cpu-architecture](imgs/cpu_model_cpu_architecture.png)
+![cpu-model-cpu-architecture](./imgs/cpu_model_cpu_architecture.png)
 
 Figure shows an example of CPU architecture, for a single processor with four cores and eight hardware threads in total.
 
@@ -74,14 +74,14 @@ core and how CPU caches are shared.
 
 ### Models: CPU Memory Caches
 
-![cpu-model-cpu-memory-caches](imgs/cpu_model_cpu_memory_caches.png)
+![cpu-model-cpu-memory-caches](./imgs/cpu_model_cpu_memory_caches.png)
 
 Processors provide various hardware caches for improving memory I/O performance. Figure shows the relationship of cache
 sizes, which become smaller and faster (a trade-off) the closer they are to the CPU.
 
 ### Models: CPU Run Queues
 
-![cpu-model-cpu-run-queues](imgs/cpu_model_cpu_run_queues.png)
+![cpu-model-cpu-run-queues](./imgs/cpu_model_cpu_run_queues.png)
 
 Figure shows a CPU run queue, which is managed by the kernel scheduler.
 
