@@ -10,8 +10,8 @@ Terminologies And Concepts About Linux CPU
     - [CPU缓存](./os_linux_cpu.md#models-cpu-memory-caches)
     - [CPU运行队列](./os_linux_cpu.md#models-cpu-run-queues)
 - [CPU架构](./os_linux_cpu.md#cpu-architecture)
-    - [CPU硬件架构](./os_linux_cpu.md#arch-cpu-hardware)
-    - [CPU软件架构](./os_linux_cpu.md#arch-cpu-software)
+    - [CPU硬件架构](./os_linux_cpu.md#cpu-hardware-arch)
+    - [CPU软件架构](./os_linux_cpu.md#cpu-software-arch)
 
 ## Questions
 
@@ -99,9 +99,47 @@ locks) for queue operations, which would hurt scalability if the run queue was g
 
 ## CPU Architecture
 
-### Arch: CPU Hardware
+### CPU Hardware Arch
 
-### Arch: CPU Software
 
+
+
+
+
+### CPU Software Arch
+
+Kernel software to support CPUs includes the `scheduler`, `scheduling classes`, and the `idle thread`.
+
+**scheduler**
+
+![cpu_arch_software_kernel_scheduler_functions.png](imgs/cpu_arch_software_kernel_scheduler_functions.png)
+
+Key functions of the kernel CPU scheduler:
+
+- `Time sharing`: Multitasking between runnable threads, executing those with the highest priority first.
+- `Preemption`: For threads that have become runnable at a high priority, the scheduler can preempt the currently
+  running thread, so that execution of the higher-priority thread can begin immediately.
+- `Load balancing`: Moving runnable threads to the run queues of idle or less-busy CPUs
+
+In Linux, `time sharing` is driven by the `system timer interrupt` by calling scheduler_tick(), which
+calls `scheduler class functions` to manage `priorities` and the expiration of units of CPU time called `time slices`.
+`Preemption` is triggered when threads become runnable and the scheduler class check_preempt_curr() function is called.
+`Thread switching` is managed by __schedule(), which selects the highest-priority thread via pick_next_task() for
+running. `Load balancing` is performed by the load_balance() function.
+
+The Linux scheduler also uses logic to avoid migrations when the cost is expected to exceed the benefit, preferring to
+leave busy threads running on the same CPU where the CPU caches should still be warm (CPU affinity). In the Linux
+source, see the idle_balance() and task_hot() functions.
+
+Note that all these function names may change; refer to the Linux source code, including documentation in the
+Documentation directory, for more detail.
+
+**Scheduling Classes**
+
+**Idle Thread**
+
+**NUMA Grouping**
+
+**Processor Resource-Aware**
 
 

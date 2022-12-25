@@ -60,7 +60,7 @@ Terminologies And Concepts About Linux
 system devices (disks, network interfaces, etc.).
 
 ![role_of_operating_system_kernel.png](./imgs/role_of_operating_system_kernel.png)
-![img.png](imgs/ebpf-applications-kernel-model.png)
+![ebpf-applications-kernel-model.png](./imgs/ebpf-applications-kernel-model.png)
 
 **Applications**: include all running user-level software, including databases, web servers, administration tools, and
 operating system shells.
